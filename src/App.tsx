@@ -8,44 +8,50 @@ import { useLocation } from "react-router-dom";
 const App = () => {
   const { pathname } = useLocation();
   const { lang } = useLanguage();
+
   const getMatchedRoute = (path: string) =>
-    pathToTitle.find(entry => Object.values(entry.path).includes(path))
+    pathToTitle.find(entry => Object.values(entry.path).includes(path));
 
   useEffect(() => {
-    const match = getMatchedRoute(pathname)
-    const title = match
-      ? match.title[lang]
-      : lang === 'en'
-        ? 'Error | Page not found'
-        : 'Error | Página no encontrada'
+    const match = getMatchedRoute(pathname);
 
+    const title = match
+      ? match.title?.[lang] || match.title?.["es"] || "Error | Página no encontrada"
+      : lang === "en"
+        ? "Error | Page not found"
+        : "Error | Página no encontrada";
+
+    const description = match
+      ? match.description?.[lang] || match.description?.["es"] || "Descripción breve de tu aplicación"
+      : "Descripción breve de tu aplicación";
+
+    // Title del documento
     document.title = title;
 
-    // Actualiza los metadatos de OpenGraph
+    // OpenGraph title
     const metaTitle = document.querySelector('meta[property="og:title"]');
     if (metaTitle) {
-      metaTitle.setAttribute('content', title);
-    } else {
-      const newMetaTitle = document.createElement('meta');
-      newMetaTitle.setAttribute('property', 'og:title');
-      newMetaTitle.setAttribute('content', title);
-      document.head.appendChild(newMetaTitle);
+      metaTitle.setAttribute("content", title);
     }
 
-    // Actualiza la descripción de OpenGraph
-    const description = match
-      ? match.description?.[lang] || 'Descripción breve de tu aplicación'
-      : 'Descripción breve de tu aplicación';
+    // OpenGraph description
     const metaDescription = document.querySelector('meta[property="og:description"]');
     if (metaDescription) {
-      metaDescription.setAttribute('content', description);
-    } else {
-      const newMetaDescription = document.createElement('meta');
-      newMetaDescription.setAttribute('property', 'og:description');
-      newMetaDescription.setAttribute('content', description);
-      document.head.appendChild(newMetaDescription);
+      metaDescription.setAttribute("content", description);
     }
-  }, [pathname, lang])
+
+    // Twitter title
+    const twitterTitle = document.querySelector('meta[property="twitter:title"]');
+    if (twitterTitle) {
+      twitterTitle.setAttribute("content", title);
+    }
+
+    // Twitter description
+    const twitterDescription = document.querySelector('meta[property="twitter:description"]');
+    if (twitterDescription) {
+      twitterDescription.setAttribute("content", description);
+    }
+  }, [pathname, lang]);
 
   return (
     <>
